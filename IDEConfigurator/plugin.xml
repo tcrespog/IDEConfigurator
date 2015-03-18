@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="4.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.splashHandlers">
+      <splashHandler
+            class="es.gavab.ideconfigurator.ExtensibleSplashHandler"
+            id="es.gavab.ideconfigurator.splashHandlers.extensible">
+      </splashHandler>
+      <splashHandlerProductBinding
+            productId="org.eclipse.platform.ide"
+            splashId="es.gavab.ideconfigurator.splashHandlers.extensible">
+      </splashHandlerProductBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="es.gavab.ideconfigurator.IDEConfiguratorStartup">
+      </startup>
+   </extension>
+</plugin>

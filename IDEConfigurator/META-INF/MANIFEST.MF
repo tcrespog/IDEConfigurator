@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.eclipse.swt,
+ org.eclipse.jface,
+ org.eclipse.ui.workbench
+Bundle-Vendor: EclipseGavab Team
+Bundle-ActivationPolicy: lazy
+Bundle-Version: 1.0.8.200902041501
+Bundle-Name: IDEConfigurator Plug-in
+Bundle-ManifestVersion: 2
+Bundle-Activator: es.gavab.ideconfigurator.IDEConfiguratorPlugin
+Bundle-SymbolicName: es.gavab.IDEConfigurator;singleton:=true
