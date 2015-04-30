@@ -9,5 +9,6 @@ public class IDEConfiguratorStartup
     public void earlyStartup() {
     	IDEConfiguratorPlugin.getDefault().getLog().log(new Status(1, "es.gavab.IDEConfigurator", "Starting up"));
         IDEConfiguratorPlugin.getDefault().initializeWorkspaceSettings();
+        IDEConfiguratorPlugin.getDefault().extractTools();
     }
 }

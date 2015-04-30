@@ -11,6 +11,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 
 import org.eclipse.core.runtime.CoreException;
@@ -98,8 +100,7 @@ public class IDEConfiguratorPlugin extends Plugin {
                 extractFileFromJarIfNecessary("/resources/linux/resources.zip", zipFile.getAbsolutePath());
             }
             File pluginsStateDir = path.toFile().getParentFile();
-            UnZip unzip = new UnZip();
-            unzip.extractFiles(zipFile.getAbsolutePath(), pluginsStateDir.getAbsolutePath());
+            UnZip.extractFiles(zipFile.getAbsolutePath(), pluginsStateDir.getAbsolutePath());
 
             String cleanEclipseInstallationDir = eclipseInstallationDir.substring(eclipseInstallationDir.indexOf(':') + 1);
             File temp = new File(cleanEclipseInstallationDir);
@@ -136,7 +137,7 @@ public class IDEConfiguratorPlugin extends Plugin {
 
                 pluginPrefs.put(ECLIPSE_INSTALLATION_DIR, eclipseInstallationDir);
                 pluginPrefs.flush();
-                getLog().log(new Status(1, "es.gavab.IDEConfigurator", "Work done"));
+                getLog().log(new Status(1, "es.gavab.IDEConfigurator", "Workspace settings initialization done"));
             } catch (IOException e) {
                 log(e);
             } catch (CoreException e) {
@@ -248,5 +249,39 @@ public class IDEConfiguratorPlugin extends Plugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    //Unzip toolchains if they exist 
+    public void extractTools() {
+    	String[] zipNames = {"mingw.zip", "ruby.zip", "ghc.zip", "fpc.zip", "jre.zip"}; //Name convention for the zipped tools
+    	File eclipseInstallDir = new File(Platform.getInstallLocation().getURL().getPath());
+    	String eclipseInstallDir_path = eclipseInstallDir.getPath() + File.separator;
+    	String eclipseRootDir_path = eclipseInstallDir.getParent() + File.separator; //Zipped tools must be inside eclipse installation directory
+    	
+    	ExecutorService executorService = Executors.newFixedThreadPool(zipNames.length); //One thread per unzipping task
+    	
+    	for (final String zipName : zipNames) {
+    		final String zipFilePath = eclipseRootDir_path + zipName;
+    		if (new File(zipFilePath).exists()) {
+    		    final String folderFilePath; //Destination path where the folder will go in
+    		    if (zipName.equals("jre.zip")) { //JRE locates inside eclipse folder
+    			    folderFilePath = eclipseInstallDir_path;
+    		    } else {
+    			    folderFilePath = eclipseRootDir_path;
+    		    }
+    		
+    			executorService.submit(new Runnable() {
+					
+					@Override
+					public void run() {
+						getLog().log(new Status(1, "es.gavab.IDEConfigurator", "Starting extraction of " + zipName));
+						UnZip.extractFiles(zipFilePath, folderFilePath);
+						getLog().log(new Status(1, "es.gavab.IDEConfigurator", "Extraction of " + zipName + " completed"));
+						new File(zipFilePath).delete(); //Delete the zip file after extraction
+					}	
+				});
+    		}
+    	}
+    	
     }
 }
